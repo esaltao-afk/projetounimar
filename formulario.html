@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Cadastro de Moradores</title>
+        <link rel="stylesheet" href="formulario.css">
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    </head>
+
+    <body>  
+        <div class="container">
+            <h1 id="titulo">Cadastro de Moradores</h1>
+            <p id="subtitulo">Complete os campos com as informações do morador</p>
+
+            <form action="processar.php" method="post">
+                <input type="hidden" name="acao" value="cadastrar">
+                <fieldset class="grupo">
+                    <div class="campo">
+                        <label for="nome">Nome</label>
+                        <input type="text" name="nome" id="nome" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="sobrenome">Sobrenome</label>
+                        <input type="text" name="sobrenome" id="sobrenome" required>
+                    </div>
+                </fieldset> 
+
+                <div class="campo">
+                    <label for="email">Email</label>
+                    <input type="email" name="email" id="email" required>
+                </div>
+
+                <div class="campo">
+                    <label for="apartamento">Apartamento</label>
+                    <input type="text" name="apartamento" id="apartamento" required>
+                </div>
+
+                <div class="campo">
+                    <label for="bloco">Bloco</label>
+                    <select id="bloco" name="bloco" required>
+                        <option value="" disabled selected>Selecione</option>
+                        <option value="A">Bloco A</option>
+                        <option value="B">Bloco B</option>
+                        <option value="C">Bloco C</option>
+                        <option value="D">Bloco D</option>
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label>Tipo de Morador</label>
+                    <div class="radio-grupo">
+                        <div class="radio-item">
+                            <input type="radio" id="proprietario" name="tipo" value="proprietario" checked>
+                            <label for="proprietario">Proprietário</label>
+                        </div>
+                        <div class="radio-item">
+                            <input type="radio" id="inquilino" name="tipo" value="inquilino">
+                            <label for="inquilino">Inquilino</label>
+                        </div>
+                    </div>
+                </div>
+
+                <fieldset class="grupo">
+                    <div class="campo">
+                        <label>Serviços Contratados:</label>
+                        <div class="checkbox-grupo">
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="servico1" name="servicos[]" value="Garagem">
+                                <label for="servico1">Garagem</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="servico2" name="servicos[]" value="Piscina">
+                                <label for="servico2">Piscina</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="servico3" name="servicos[]" value="Salão de Festas">
+                                <label for="servico3">Salão de Festas</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="servico4" name="servicos[]" value="Academia">
+                                <label for="servico4">Academia</label>
+                            </div>
+                            <div class="checkbox-item">
+                                <input type="checkbox" id="servico5" name="servicos[]" value="Churrasqueira">
+                                <label for="servico5">Churrasqueira</label>
+                            </div>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="campo">
+                    <label for="observacoes">Observações Adicionais:</label>
+                    <textarea id="observacoes" name="observacoes" rows="6"></textarea>
+                </div>
+
+                <button class="botao" type="submit">Cadastrar</button>            
+                <br><br>
+                <a href="index.html" class="button-link"><input type="button" value="Voltar" class="botao"></a>
+            </form>
+        </div>
+
+        <script>
+            $(document).ready(function() {
+                $('form').on('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Desabilita o botão durante o envio
+                    $('button[type="submit"]').prop('disabled', true);
+                    
+                    $.ajax({
+                        type: 'POST',
+                        url: 'processar.php',
+                        data: $(this).serialize(),
+                        success: function(response) {
+                            console.log("Resposta:", response); // Debug
+                            
+                            if(response.includes('success')) {
+                                Swal.fire({
+                                    title: 'Sucesso!',
+                                    text: 'Morador cadastrado com sucesso!',
+                                    icon: 'success',
+                                    confirmButtonText: 'OK'
+                                }).then((result) => {
+                                    if (result.isConfirmed) {
+                                        window.location.href = 'index.html';
+                                    }
+                                });
+                            } else {
+                                let errorMsg = response.includes('error:') ? 
+                                    response.split('error:')[1] : 
+                                    'Ocorreu um erro ao cadastrar.';
+                                    
+                                Swal.fire({
+                                    title: 'Erro!',
+                                    text: errorMsg,
+                                    icon: 'error',
+                                    confirmButtonText: 'OK'
+                                });
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("Erro AJAX:", error); // Debug
+                            Swal.fire({
+                                title: 'Erro!',
+                                text: 'Erro na comunicação com o servidor',
+                                icon: 'error',
+                                confirmButtonText: 'OK'
+                            });
+                        },
+                        complete: function() {
+                            // Reabilita o botão após a conclusão
+                            $('button[type="submit"]').prop('disabled', false);
+                        }
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>
